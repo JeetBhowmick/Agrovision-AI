@@ -23,3 +23,6 @@ AgroVision is a full-stack AI-powered web application that recommends optimal cr
 * FRONTEND: UI
 * ML: Model and inference
 
+## Dataset
+Dataset sourced from: [https://www.kaggle.com/datasets/madhuraatmarambhagat/crop-recommendation-dataset]
+
