@@ -1,0 +1,90 @@
+//import numpy as np
+import pickle
+from tensorflow.keras.models import load_model
+
+# 1. Load trained model and preprocessors
+model = load_model("crop_ann_model.h5")
+
+with open("scaler.pkl", "rb") as f:
+    scaler = pickle.load(f)
+
+with open("label_encoder.pkl", "rb") as f:
+    label_encoder = pickle.load(f)
+
+farmer_input = {
+    "N": 70,
+    "P": 92,
+    "K": 43,
+    "temperature": 35.8,
+    "humidity": 82,
+    "ph": 7.5,
+    "rainfall": 112.9
+}
+
+# 3. Convert input to model format
+input_array = np.array([[
+    farmer_input["N"],
+    farmer_input["P"],
+    farmer_input["K"],
+    farmer_input["temperature"],
+    farmer_input["humidity"],
+    farmer_input["ph"],
+    farmer_input["rainfall"]
+]])
+
+# 4. Scale input (VERY IMPORTANT)
+input_scaled = scaler.transform(input_array)
+
+# 5. Predict probabilities
+probabilities = model.predict(input_scaled)[0]
+
+# 6. Get TOP 3 predictions
+top_3_indices = np.argsort(probabilities)[-3:][::-1]
+
+top_3_crops = label_encoder.inverse_transform(top_3_indices)
+top_3_probs = probabilities[top_3_indices]
+
+# 7. Display result (what Saarthi will show farmer)
+print("\n🌱 Top 3 Recommended Crops:\n")
+
+for i in range(3):
+    print(
+        f"{i+1}. {top_3_crops[i]} "
+        f"(Confidence: {top_3_probs[i]*100:.2f}%)"
+    )
+//
+from flask import Flask, request, jsonify
+import sys
+import os
+
+# Allow Flask to access ML folder
+sys.path.append(os.path.abspath("ML/Crop_recommendation"))
+
+from ann_inference import predict_top3
+
+app = Flask(__name__)
+
+@app.route("/api/crop-recommend", methods=["POST"])
+def crop_recommend():
+    data = request.json
+
+    required = ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
+    if not data or not all(k in data for k in required):
+        return jsonify({"error": "Missing input fields"}), 400
+
+    features = [
+        data["N"],
+        data["P"],
+        data["K"],
+        data["temperature"],
+        data["humidity"],
+        data["ph"],
+        data["rainfall"]
+    ]
+
+    result = predict_top3(features)
+    return jsonify({"recommendations": result})
+
+if __name__ == "__main__":
+    app.run(debug=True)
+app.py//

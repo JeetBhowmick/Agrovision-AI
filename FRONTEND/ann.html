@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Recommendation | AgroVision</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Crop Recommendation</h1>
+
+  <div class="form">
+    <input id="N" placeholder="Nitrogen (N)">
+    <input id="P" placeholder="Phosphorus (P)">
+    <input id="K" placeholder="Potassium (K)">
+    <input id="temperature" placeholder="Temperature (°C)">
+    <input id="humidity" placeholder="Humidity (%)">
+    <input id="ph" placeholder="Soil pH">
+    <input id="rainfall" placeholder="Rainfall (mm)">
+
+    <button id="predictBtn">Predict Crop</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script src="ann.js"></script>
+</body>
+</html>
